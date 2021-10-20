@@ -5,10 +5,72 @@ import numpy as np
 import json
 from labelme import utils
 from tqdm import tqdm
-from workshop.GeneralTools import *
+import os, re
+
 # pip install labelme2coco
 import labelme2coco
 import json
+import glob
+import logging
+import os
+import time
+from os.path import splitext
+from tqdm import tqdm
+
+def auto_make_directory(dir_pth: str):
+    '''
+    自动检查dir_pth是否存在，若存在，返回真，若不存在创建该路径，并返回假
+    :param dir_pth: 路径
+    :return: bool
+    '''
+    if os.path.exists(dir_pth):  ##目录存在，返回为真
+        return True
+    else:
+        os.makedirs(dir_pth)
+        return False
+
+
+
+def get_files_pth(dir_pth: str, suffix: str = '*'):
+    '''
+    返回dir_pth下以后缀名suffix结尾的文件绝对路径list
+    :param dir_pth:文件夹路径
+    :param suffix:限定的文件后缀
+    :return: 文件绝对路径list
+    '''
+    rst = []
+    glob_pth = os.path.join(dir_pth, f'*.{suffix}')
+    for filename in glob.glob(glob_pth):
+        rst.append(filename)
+    return rst
+
+#
+
+
+def get_files_name(dir_path: str, suffix: str = '*'):
+    '''
+    返回指定文件夹内的文件名（不带后缀）列表
+    :param dir_path: 文件夹路径
+    :param suffix:限定的文件后缀
+    :return:文件名（不带后缀）列表
+    '''
+    if suffix == '*':
+        ids = [splitext(file)[0] for file in os.listdir(dir_path) if not file.startswith('.')]
+        return ids
+    else:
+        ids = [splitext(file)[0] for file in os.listdir(dir_path) if file.endswith(f'.{suffix}')]  # 获取图片名称，ids是一个列表
+        return ids
+
+
+def get_filename_from_pth(file_pth: str, suffix: bool = True):
+    '''
+    根据文件路径获取文件名
+    :param file_pth:文件路径
+    :return:文件名
+    '''
+    fname_list = os.path.split(file_pth)[1].split('.')
+    rst = '.'.join(fname_list)
+    return rst
 
 
 def find_contours(rst_img, ori_img, dilate_times=10, erode_times=2):
