@@ -102,14 +102,14 @@ def find_contours(rst_img, ori_img, dilate_times=10, erode_times=2):
             continue
         else:
             temp = contours[i]
-            epsilon = 0.0001 * cv2.arcLength(cnt, True)
+            epsilon = 0.0001 * cv2.arcLength(cnt, True) # tune the '0.0001' if the contour looks terrible
             approx = cv2.approxPolyDP(cnt, epsilon, True)
             cv2.polylines(poly_img, [approx], True, (0, 0, 255), 2)
             contourLines.append(temp)
 
     cv2.namedWindow('show', 0)
     cv2.imshow('show', poly_img)
-    cv2.imwrite(f'X:/temp/{dilate_times}_{erode_times}.png', poly_img)
+    # cv2.imwrite(f'X:/temp/{dilate_times}_{erode_times}.png', poly_img)
     cv2.waitKey()
     cv2.destroyAllWindows()
     return poly_img, contourLines
