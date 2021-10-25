@@ -107,11 +107,11 @@ def find_contours(rst_img, ori_img, dilate_times=10, erode_times=2):
             cv2.polylines(poly_img, [approx], True, (0, 0, 255), 2)
             contourLines.append(temp)
 
-    cv2.namedWindow('show', 0)
-    cv2.imshow('show', poly_img)
-    # cv2.imwrite(f'X:/temp/{dilate_times}_{erode_times}.png', poly_img)
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    # cv2.namedWindow('show', 0)
+    # cv2.imshow('show', poly_img)
+    # # cv2.imwrite(f'X:/temp/{dilate_times}_{erode_times}.png', poly_img)
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()
     return poly_img, contourLines
 
 
@@ -312,15 +312,13 @@ class Label:
             return True
 
 
-def test2(source_dir='', rst_dir='', d_t=10, e_t=2):
+def step2_1(source_dir='', rst_dir='', d_t=10, e_t=2):
     '''
     第二步 将文本行灰度图转换为labelme格式
     :param source_dir: 存放灰度文本行的文件夹路径
     :param rst_dir: labelme结果存放文件夹路径
     :return:
     '''
-    # source_dir = r'X:\Dataset\HTDI\HTDI-Test-SOLO\HDTI_instance_seg'
-    # rst_dir = r'X:\Dataset\HTDI\HTDI-Test-SOLO\auto_coco_layout'
     auto_make_directory(rst_dir)
     source_files = get_files_pth(source_dir)
     for file in tqdm(source_files):
@@ -332,7 +330,7 @@ def test2(source_dir='', rst_dir='', d_t=10, e_t=2):
         labelme_obj.output(os.path.join(rst_dir, file_name.split('.')[0] + '.' + file_name.split('.')[1] + '.json'))
 
 
-def test3(source_dir='', rst_dir=''):
+def resize_imgs_to(source_dir='', rst_dir=''):
     '''
     将原图放缩后注入labelme文件夹下，默认缩放为1500*1500
     :param source_dir: 原图
@@ -345,7 +343,7 @@ def test3(source_dir='', rst_dir=''):
     resize_imgdir(source_dir, rst_dir, (1500, 1500))
 
 
-def test4(labelme_folder='', rst_dir=''):
+def step_3(labelme_folder='', rst_dir=''):
     '''
     labelme转coco
     :param labelme_folder: 存放labelme文件的文件夹路径
@@ -363,19 +361,18 @@ def test4(labelme_folder='', rst_dir=''):
 
     # convert labelme annotations to coco
     labelme2coco.convert(labelme_folder, save_json_path)
-    print('转换成功，将JSON保存至：' + r'' + save_json_path)
+    print('Success，Svaing JSONO to:' + r'' + save_json_path)
 
 
 
 
-def test5(pth):
+def step_3_aux(pth):
     '''
     将coco文件的文件路径去除windows系统痕迹，以便将数据用在linux上。
     :param pth: 存放coco文件的路径
     :return:
     '''
 
-    # pth = r"X:\Dataset\HTDI\HTDI-Test-SOLO\annotations"
     json_pth = os.path.join(pth, "annotations-origin.json")
     with open(json_pth, 'r') as f:
         label = json.loads(f.read())
@@ -392,55 +389,32 @@ def test5(pth):
 
 import shutil
 
-
-def test6(dir):
-    json_files = get_files_pth(dir, 'json')
-    for item in tqdm(json_files):
-        fname = get_filename_from_pth(item)
-        json_pth = os.path.join(dir, fname + '.json')
-        img_pth = os.path.join(dir, fname + '.png')
-        auto_make_directory(fr'X:/Dataset/HTDI/HTDI-Test-SOLO/Single_IMG/{fname}')
-        ann_dir = fr'X:/Dataset/HTDI/HTDI-Test-SOLO/Single_IMG/{fname}'
-        shutil.copyfile(json_pth,os.path.join(ann_dir,fname+'.json'))
-        shutil.copyfile(img_pth, os.path.join(ann_dir, fname + '.png'))
-        save_json_pth = os.path.join(r'X:\Dataset\HTDI\HTDI-Test-SOLO\Single_IMG', fname + '_origin.json')
-        labelme2coco.convert(ann_dir, save_json_pth)
-        with open(save_json_pth, 'r') as f:
-            label = json.loads(f.read())
-        images = label['images']
-        for image in tqdm(images):
-            image['file_name'] = image['file_name'].split('\\')[-1]
-        label['images'] = images
-        json.dumps(label)
-        with open(os.path.join(r'X:\Dataset\HTDI\HTDI-Test-SOLO\Single_IMG', fname+'.json'), 'w+') as f:  # 打开文件用于读写，如果文件存在则打开文件，将原有内容删除；文件不存在则创建文件；
-            f.write(json.dumps(label))
-        os.remove(os.path.join(r'X:\Dataset\HTDI\HTDI-Test-SOLO\Single_IMG', fname + '_origin.json'))
-        print()
-
-    pass
-
-
 def build_dataset_pipeline():
 
     dilate_erode_times = [[6, 4],[10, 2]]
-    base_dir = r'X:\Dataset\HTDI\HTDI-Train-SOLO'
-    source_dir = os.path.join(base_dir, r'source')
-    out_dir = r'C:\Users\OCEAN\Desktop\Annotations'
+    base_dir = r'C:\Users\Ocean\Desktop\HTDI-Test-SOLO'
 
-    intensity_dir = os.path.join(base_dir, r'intensity_image')  # test 1 rst dir
+    source_dir = os.path.join(base_dir, r'source_img')
+    segmented_dir = os.path.join(base_dir, r'segmented_img')
+
+    out_dir = os.path.join(base_dir, r'Annotations')
+
+      # test 1 rst dir
     for d_e_t in tqdm(dilate_erode_times):
-        print('正在将灰度图转换为labelme格式' + f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}')
-        # trd1与trd1保持相同
+        print('converting segmented_img to labelme' + f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}')
+
         labelme_dir = os.path.join(out_dir,
                             f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}/labelme')  # test 2 rst dir
          # test 3 source dir
-        test2(intensity_dir, labelme_dir , d_t=d_e_t[0], e_t=d_e_t[1])  # 生成labelme的JSON值trd2
-        test3(source_dir, labelme_dir )  # resize原图至trd2
+        step2_1(segmented_dir, labelme_dir , d_t=d_e_t[0], e_t=d_e_t[1])  # 生成labelme的JSON值trd2
+        resize_imgs_to(source_dir, labelme_dir )  # resize原图至trd2
 
-        print('正在将labelme转为coco，并去除windows路径')
+        print('converting labelme to coco，this may take a few time')
         coco_dir = os.path.join(out_dir, f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}')  # test 4 rst dir
-        test4(labelme_dir , coco_dir)
-        test5(coco_dir)  # 去除
+        step_3(labelme_dir , coco_dir)
+        step_3_aux(coco_dir)
 
 
 build_dataset_pipeline()
+
+
