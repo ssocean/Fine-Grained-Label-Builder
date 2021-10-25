@@ -241,7 +241,7 @@ class Label:
     def bin_to_coco(self, img_pth='', d_t=10, e_t=2):
         if img_pth == '':
             img_pth = self.abs_img_pth
-        print('图片地址' + img_pth)
+        print('img_path:' + img_pth)
         img = cv2.imread(img_pth, 1)
         shapes = []
         for j in range(1, 11):
@@ -249,6 +249,7 @@ class Label:
             temp_mask = get_mask_by_color(img, j * 20)
             _, con_line = find_contours(temp_mask, img, d_t, e_t)
             points = []
+
             if j <= 8:
                 shape_dict['label'] = f'line{j}'
             elif j == 9:
