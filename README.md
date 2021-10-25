@@ -1,2 +1,3 @@
 # FineGrainedLabelBuilder
-# Still work in progress, will be finished in a few days.
+# Fully functional, but still need improvements.
+# Working in progress, will be finished in a few days.
