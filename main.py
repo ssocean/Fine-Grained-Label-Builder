@@ -2,7 +2,7 @@ import argparse
 import copy
 import cv2
 import numpy as np
-import labelme2coco # pip install labelme2coco
+import labelme2coco  # pip install labelme2coco
 import json
 import glob
 import os
@@ -23,7 +23,6 @@ def auto_make_directory(dir_pth: str):
         return False
 
 
-
 def get_files_pth(dir_pth: str, suffix: str = '*'):
     '''
     返回dir_pth下以后缀名suffix结尾的文件绝对路径list
@@ -36,6 +35,7 @@ def get_files_pth(dir_pth: str, suffix: str = '*'):
     for filename in glob.glob(glob_pth):
         rst.append(filename)
     return rst
+
 
 #
 
@@ -95,16 +95,10 @@ def find_contours(rst_img, ori_img, dilate_times=10, erode_times=2):
             continue
         else:
             temp = contours[i]
-            epsilon = 0.0001 * cv2.arcLength(cnt, True) # tune the '0.0001' if the contour looks terrible
+            epsilon = 0.0001 * cv2.arcLength(cnt, True)  # tune the '0.0001' if the contour looks terrible
             approx = cv2.approxPolyDP(cnt, epsilon, True)
             cv2.polylines(poly_img, [approx], True, (0, 0, 255), 2)
             contourLines.append(temp)
-
-    # cv2.namedWindow('show', 0)
-    # cv2.imshow('show', poly_img)
-    # # cv2.imwrite(f'X:/temp/{dilate_times}_{erode_times}.png', poly_img)
-    # cv2.waitKey()
-    # cv2.destroyAllWindows()
     return poly_img, contourLines
 
 
@@ -174,7 +168,7 @@ class Label:
         self.abs_img_pth = abs_img_pth
         self.img = cv2.imread(abs_img_pth)
         self.input_shape = self.img.shape
-        if json_pth == '': # has no corresponding json file
+        if json_pth == '':  # has no corresponding json file
             self.imageWidth = float(self.input_shape[1])
             self.imageHeight = float(self.input_shape[0])
             self.imageData = imageData
@@ -182,7 +176,7 @@ class Label:
             self.shapes = shapes
             self.flags = flags
             self.version = version
-        else: # load json file
+        else:  # load json file
             self.json_pth = json_pth
             with open(json_pth, 'r') as f:
                 label = json.loads(f.read())
@@ -214,9 +208,8 @@ class Label:
         :param img_relative_pth: 原图变换后图片IMG相对于JSON文件的相对路径，该路径仅用于向JSON中imagePath字段写入，默认文文件名
         :return:
         '''
-        self.imageData = None #disable imageData
+        self.imageData = None  # disable imageData
         self.output_shape = rst_shape
-
 
         o_h, o_w, o_c = self.imageHeight, self.imageWidth, rst_shape[2]
 
@@ -244,12 +237,12 @@ class Label:
         print('img_path:' + img_pth)
         img = cv2.imread(img_pth, 1)
         shapes = []
-        for j in range(1, 11):
+        for j in range(1, 11):  # edit here to (1,class numer+1)
             shape_dict = {}
-            temp_mask = get_mask_by_color(img, j * 20)
+            temp_mask = get_mask_by_color(img, j * 20)  # edit here
             _, con_line = find_contours(temp_mask, img, d_t, e_t)
             points = []
-
+            # edit here
             if j <= 8:
                 shape_dict['label'] = f'line{j}'
             elif j == 9:
@@ -320,7 +313,6 @@ def step2_1(source_dir='', rst_dir='', d_t=10, e_t=2):
         labelme_obj = Label(abs_img_pth=file, imagePath=file_name)
         labelme_obj.bin_to_coco('', d_t, e_t)
         labelme_obj.resize_((args.height, args.width, 3), img_relative_pth=file_name)
-        # print(os.path.join(rst_dir,str(file_name.split('.')[0]+'.'+file_name.split('.')[1])+'.json'))
         labelme_obj.output(os.path.join(rst_dir, file_name.split('.')[0] + '.' + file_name.split('.')[1] + '.json'))
 
 
@@ -353,8 +345,6 @@ def step_3(labelme_folder='', rst_dir=''):
     print('Success，Svaing JSONO to:' + r'' + save_json_path)
 
 
-
-
 def step_3_aux(pth):
     '''
     将coco文件的文件路径去除windows系统痕迹，以便将数据用在linux上。
@@ -376,10 +366,8 @@ def step_3_aux(pth):
         f.write(json.dumps(label))
 
 
-
 def build_dataset_pipeline(base_dir):
-
-    dilate_erode_times = [[6, 4],[10, 2]]
+    dilate_erode_times = [[6, 4], [10, 2]]
     if not base_dir:
         base_dir = r'Input ur base dir here'
 
@@ -388,30 +376,27 @@ def build_dataset_pipeline(base_dir):
 
     out_dir = os.path.join(base_dir, r'Annotations')
 
-      # test 1 rst dir
+    # test 1 rst dir
     for d_e_t in tqdm(dilate_erode_times):
         print('converting segmented_img to labelme' + f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}')
 
         labelme_dir = os.path.join(out_dir,
-                            f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}/labelme')  # test 2 rst dir
-         # test 3 source dir
-        step2_1(segmented_dir, labelme_dir , d_t=d_e_t[0], e_t=d_e_t[1])  # 生成labelme的JSON值trd2
-        resize_imgs_to(source_dir, labelme_dir )  # resize原图至trd2
+                                   f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}/labelme')  # test 2 rst dir
+        # test 3 source dir
+        step2_1(segmented_dir, labelme_dir, d_t=d_e_t[0], e_t=d_e_t[1])  # 生成labelme的JSON值trd2
+        resize_imgs_to(source_dir, labelme_dir)  # resize原图至trd2
 
         print('converting labelme to coco，this may take a few time')
-        coco_dir = os.path.join(out_dir, f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}')  # test 4 rst dir
-        step_3(labelme_dir , coco_dir)
+        coco_dir = os.path.join(out_dir,
+                                f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}')  # test 4 rst dir
+        step_3(labelme_dir, coco_dir)
         step_3_aux(coco_dir)
-
-
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("base_dir")
-    parser.add_argument("-height",help = "resize height", type = int, default=700)
-    parser.add_argument("-width",help = "resize width", type = int, default=700)
+    parser.add_argument("-height", help="resize height", type=int, default=700)
+    parser.add_argument("-width", help="resize width", type=int, default=700)
     args = parser.parse_args()
     build_dataset_pipeline(args.base_dir)
-
-
