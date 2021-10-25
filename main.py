@@ -9,6 +9,7 @@ import os
 from os.path import splitext
 from tqdm import tqdm
 
+
 def auto_make_directory(dir_pth: str):
     '''
     自动检查dir_pth是否存在，若存在，返回真，若不存在创建该路径，并返回假
@@ -317,20 +318,20 @@ def step2_1(source_dir='', rst_dir='', d_t=10, e_t=2):
         file_name = os.path.basename(file)
         labelme_obj = Label(abs_img_pth=file, imagePath=file_name)
         labelme_obj.bin_to_coco('', d_t, e_t)
-        labelme_obj.resize_((1500, 1500, 3), img_relative_pth=file_name)
+        labelme_obj.resize_((args.height, args.width, 3), img_relative_pth=file_name)
         # print(os.path.join(rst_dir,str(file_name.split('.')[0]+'.'+file_name.split('.')[1])+'.json'))
         labelme_obj.output(os.path.join(rst_dir, file_name.split('.')[0] + '.' + file_name.split('.')[1] + '.json'))
 
 
 def resize_imgs_to(source_dir='', rst_dir=''):
     '''
-    将原图放缩后注入labelme文件夹下，默认缩放为1500*1500
+    resize all imgs in source_dir to rst_dir
     :param source_dir: 原图
     :param rst_dir: resize后的结果图存放路径
     :return:
     '''
     auto_make_directory(rst_dir)
-    resize_imgdir(source_dir, rst_dir, (1500, 1500))
+    resize_imgdir(source_dir, rst_dir, (args.height, args.width))
 
 
 def step_3(labelme_folder='', rst_dir=''):
@@ -407,6 +408,8 @@ def build_dataset_pipeline(base_dir):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("base_dir")
+    parser.add_argument("-height",help = "resize height", type = int, default=700)
+    parser.add_argument("-width",help = "resize width", type = int, default=700)
     args = parser.parse_args()
     build_dataset_pipeline(args.base_dir)
 
