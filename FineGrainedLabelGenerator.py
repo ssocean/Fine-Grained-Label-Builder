@@ -1,19 +1,11 @@
+import argparse
 import copy
-import os
 import cv2
 import numpy as np
-import json
-from labelme import utils
-from tqdm import tqdm
-import os, re
-
-# pip install labelme2coco
-import labelme2coco
+import labelme2coco # pip install labelme2coco
 import json
 import glob
-import logging
 import os
-import time
 from os.path import splitext
 from tqdm import tqdm
 
@@ -337,8 +329,6 @@ def resize_imgs_to(source_dir='', rst_dir=''):
     :param rst_dir: resize后的结果图存放路径
     :return:
     '''
-    # source_dir = r'X:\Dataset\HTDI\HTDI-Test-SOLO\oritemp'
-    # rst_dir = r'X:\Dataset\HTDI\HTDI-Test-SOLO\auto_coco_layout'
     auto_make_directory(rst_dir)
     resize_imgdir(source_dir, rst_dir, (1500, 1500))
 
@@ -352,9 +342,6 @@ def step_3(labelme_folder='', rst_dir=''):
     '''
 
     auto_make_directory(rst_dir)
-    # rst_dir = r"X:\Dataset\HTDI\HTDI-Test-SOLO\annotations"
-    # # set directory that contains labelme annotations and image files
-    # labelme_folder = r"X:\Dataset\HTDI\HTDI-Test-SOLO\auto_coco_layout"
 
     # set path for coco json to be saved
     save_json_path = os.path.join(rst_dir, "annotations-origin.json")
@@ -387,12 +374,12 @@ def step_3_aux(pth):
         f.write(json.dumps(label))
 
 
-import shutil
 
-def build_dataset_pipeline():
+def build_dataset_pipeline(base_dir):
 
     dilate_erode_times = [[6, 4],[10, 2]]
-    base_dir = r'C:\Users\Ocean\Desktop\HTDI-Test-SOLO'
+    if not base_dir:
+        base_dir = r'Input ur base dir here'
 
     source_dir = os.path.join(base_dir, r'source_img')
     segmented_dir = os.path.join(base_dir, r'segmented_img')
@@ -415,6 +402,12 @@ def build_dataset_pipeline():
         step_3_aux(coco_dir)
 
 
-build_dataset_pipeline()
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument("base_dir")
+    args = parser.parse_args()
+    build_dataset_pipeline(args.base_dir)
 
 
