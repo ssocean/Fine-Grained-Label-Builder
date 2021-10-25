@@ -3,7 +3,5 @@
 To build the fine-grained dataset, prepare the dir as followed.
 
 -base_dir
-
- --segmented_img
- 
- --source_img
+ -segmented_img # put the segmented img here
+ -source_img # put the source img here
