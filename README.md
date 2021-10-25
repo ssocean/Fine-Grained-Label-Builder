@@ -1,3 +1,6 @@
 # FineGrainedLabelBuilder
 # Fully functional, but still need improvements.
-# Working in progress, will be finished in a few days.
+To build the fine-grained dataset, prepare the dir as followed.
+-base_dir
+ --segmented_img
+ --source_img
