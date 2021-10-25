@@ -14,5 +14,7 @@ Install missing package could be more than enough.
 
 `python main.py base_dir`
 
+Note that you have to change few code in the main.py marked with 'edit here' to convert your own dataset.
+
 ## Any pull or issues are welcomed!
 

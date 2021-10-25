@@ -68,7 +68,7 @@ def get_filename_from_pth(file_pth: str, suffix: bool = True):
 
 def find_contours(rst_img, ori_img, dilate_times=10, erode_times=2):
     '''
-    返回img中指定颜色color的轮廓
+    find contours
     :param img:
     :param color:
     :return:
@@ -217,9 +217,9 @@ class Label:
         height_ratio = r_h / o_h
         width_ratio = r_w / o_w  # 计算出高度、宽度的放缩比例
 
-        # 对每个点都乘该比例
+
         for index, l_dict in enumerate(self.shapes):  # 获取每个标签字典
-            # l_dict是一个字典，包含label,points等键
+
             new_shapes = []
             for dot in l_dict['points']:
                 new_shapes.append([dot[0] * width_ratio, dot[1] * height_ratio])
@@ -253,7 +253,6 @@ class Label:
             for g_id, point_array in enumerate(con_line):
                 shape_dict_deepcopy = copy.deepcopy(shape_dict)
                 for point in point_array:
-                    # if random.randint(1, 10)<5:
                     points.append([float(point[0][0]), float(point[0][1])])
                 shape_dict_deepcopy['points'] = points
                 points = []
@@ -275,7 +274,7 @@ class Label:
         :return:
         '''
         if rst_pth == '':
-            assert self.json_pth != '', 'JSON路径为空，请检查实例对象初始化部分代码'
+            assert self.json_pth != '', 'JSON path error!'
             rst_pth = self.json_pth
         rst = {}
         rst["version"] = str(self.version)
@@ -361,13 +360,13 @@ def step_3_aux(pth):
         image['file_name'] = image['file_name'].split('\\')[-1]
     label['images'] = images
     json.dumps(label)
-    with open(os.path.join(pth, "annotations.json"), 'w+') as f:  # 打开文件用于读写，如果文件存在则打开文件，将原有内容删除；文件不存在则创建文件；
+    with open(os.path.join(pth, "annotations.json"), 'w+') as f:
         # pass
         f.write(json.dumps(label))
 
 
 def build_dataset_pipeline(base_dir):
-    dilate_erode_times = [[6, 4], [10, 2]]
+    dilate_erode_times = [[6, 4], [10, 2]] #edit here if necessary
     if not base_dir:
         base_dir = r'Input ur base dir here'
 
@@ -376,19 +375,18 @@ def build_dataset_pipeline(base_dir):
 
     out_dir = os.path.join(base_dir, r'Annotations')
 
-    # test 1 rst dir
     for d_e_t in tqdm(dilate_erode_times):
         print('converting segmented_img to labelme' + f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}')
 
         labelme_dir = os.path.join(out_dir,
-                                   f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}/labelme')  # test 2 rst dir
-        # test 3 source dir
-        step2_1(segmented_dir, labelme_dir, d_t=d_e_t[0], e_t=d_e_t[1])  # 生成labelme的JSON值trd2
-        resize_imgs_to(source_dir, labelme_dir)  # resize原图至trd2
+                                   f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}/labelme')
+
+        step2_1(segmented_dir, labelme_dir, d_t=d_e_t[0], e_t=d_e_t[1])
+        resize_imgs_to(source_dir, labelme_dir)
 
         print('converting labelme to coco，this may take a few time')
         coco_dir = os.path.join(out_dir,
-                                f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}')  # test 4 rst dir
+                                f'{str(d_e_t[0] - d_e_t[1])}_{str(d_e_t[0])}-{str(d_e_t[1])}')
         step_3(labelme_dir, coco_dir)
         step_3_aux(coco_dir)
 
