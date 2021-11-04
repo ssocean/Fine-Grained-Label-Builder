@@ -269,8 +269,8 @@ class Label:
 
     def output(self, rst_pth: str = '', rst_img_pth: str = ''):
         '''
-        输出此对象至rst_pth
-        :param rst_pth: 输出路径，默认为原JSON路径
+        save current object to rst_img
+        :param rst_pth: output path
         :return:
         '''
         if rst_pth == '':
@@ -300,9 +300,9 @@ class Label:
 
 def step2_1(source_dir='', rst_dir='', d_t=10, e_t=2):
     '''
-    第二步 将文本行灰度图转换为labelme格式
-    :param source_dir: 存放灰度文本行的文件夹路径
-    :param rst_dir: labelme结果存放文件夹路径
+    Step desctibed in the paper. Basically change convert text-line segmentation result into lableme format json.
+    :param source_dir: directory path of text-line segmentation result image(gray-scale)
+    :param rst_dir: output directory path of labelme format json
     :return:
     '''
     auto_make_directory(rst_dir)
@@ -317,9 +317,10 @@ def step2_1(source_dir='', rst_dir='', d_t=10, e_t=2):
 
 def resize_imgs_to(source_dir='', rst_dir=''):
     '''
-    resize all imgs in source_dir to rst_dir
-    :param source_dir: 原图
-    :param rst_dir: resize后的结果图存放路径
+    Given that we resize the lableme format json file by resize_().
+    Accordingly, we have to resize all imgs in source_dir, and save the results to rst_dir.
+    :param source_dir: A directory path where all images have to be resized
+    :param rst_dir: results path
     :return:
     '''
     auto_make_directory(rst_dir)
@@ -328,9 +329,9 @@ def resize_imgs_to(source_dir='', rst_dir=''):
 
 def step_3(labelme_folder='', rst_dir=''):
     '''
-    labelme转coco
-    :param labelme_folder: 存放labelme文件的文件夹路径
-    :param rst_dir: 存放coco文件的文件夹路径
+    This function convert labelme format json to COCO format json.
+    :param labelme_folder: labelme json folder path
+    :param rst_dir: results folder path
     :return:
     '''
 
@@ -346,6 +347,8 @@ def step_3(labelme_folder='', rst_dir=''):
 
 def step_3_aux(pth):
     '''
+    Windows user may enconunter problems with path.
+    If you running this script on Windows but train on linux, we highly recommend you that 
     将coco文件的文件路径去除windows系统痕迹，以便将数据用在linux上。
     :param pth: 存放coco文件的路径
     :return:
